@@ -18,15 +18,16 @@ int main(int argc, char *argv[]) {
 void
 parseCommandLine (int argc, char *argv[])
 {
-    //Show help
-    if (strcmp (argv[1], "-h"))
-    {
-        showHelp (argv[0]);
-        exit (0);
-    }
+
     try{
         if(argc==1){
             throw "Error: None Params";
+        }
+        //Show help
+        if (0==strcmp (argv[1], "-h"))
+        {
+            showHelp (argv[0]);
+            exit (0);
         }
         if(0==strcmp (argv[1], "display")) {
 
@@ -46,34 +47,53 @@ parseCommandLine (int argc, char *argv[])
                 projector->getStatus();
                 return;
             }else if(strcmp (argv[1], "set")==0){
-                std::string parameter=argv[2];
-                if(parameter=="period") {
+
+                if(0==strcmp(argv[2],"period")) {
                     unsigned int explosurePeriod = (unsigned int) std::stoi(argv[3]);
-                    unsigned int framePeriod = (unsigned int) std::stoi(argv[4]);
-                    projector->setExplosureFramePeriod(explosurePeriod, framePeriod);
+                    unsigned int framePeriod=explosurePeriod;
+                    if(argc>=5&&strcmp (argv[4], "-p")!=0) {
+                        framePeriod = (unsigned int) std::stoi(argv[4]);
+                        projector->setExplosureFramePeriod(explosurePeriod, framePeriod);
+                    } else{
+                        projector->setExplosureFramePeriod(explosurePeriod, explosurePeriod);
+                    }
+                    if(findSwitch(argc,argv,"-p")) projector->playSeq();
                 }
-                if(parameter=="trigger") {
-                    if(argv[3]=="internal") projector->setPatternTriggerMode(true);
-                    if(argv[3]=="external") projector->setPatternTriggerMode(false);
+                if(0==strcmp(argv[2],"fps")) {
+                    unsigned int fps = (unsigned int) std::stoi(argv[3]);
+                    projector->setPatternFPS(fps);
+                    if(findSwitch(argc,argv,"-p")) projector->playSeq();
                 }
-                if(parameter=="mode") {
-                    if(argv[3]=="video") projector->setVideoMode();
-                    if(argv[3]=="pattern") projector->setSLMode();
+                if(0==strcmp(argv[2],"trigger")) {
+                    if(0==strcmp(argv[3],"internal")) projector->setPatternTriggerMode(true);
+                    if(0==strcmp(argv[3],"external")) projector->setPatternTriggerMode(false);
                 }
-                if(parameter=="pattern_src"){
-                    if(argv[3]=="video") projector->setPatternDisplayMode(true);
-                    if(argv[3]=="internal") projector->setPatternDisplayMode(false);
+                if(0==strcmp(argv[2],"mode")) {
+                    if(0==strcmp(argv[3],"video")) {
+                        std::cout<<"Set video mode"<<std::endl;
+                        projector->setVideoMode();
+                    }
+                    if(0==strcmp(argv[3],"pattern")) projector->setSLMode();
+                }
+                if(0==strcmp(argv[2],"pattern_src")){
+                    if(0==strcmp(argv[3],"video")) projector->setPatternDisplayMode(true);
+                    if(0==strcmp(argv[3],"internal")) projector->setPatternDisplayMode(false);
                 }
             } else if(strcmp (argv[1], "status")==0){
                 projector->getStatus();
             } else if(strcmp (argv[1], "seq")==0){
-                if(strcmp(argv[2],"play")) projector->playSeq();
-                if(strcmp(argv[2],"pause")) projector->pauseSeq();
-                if(strcmp(argv[2],"stop")) projector->stopSeq();
+                if(strcmp(argv[2],"play")==0) {
+                    projector->playSeq();
+                }
+                if(strcmp(argv[2],"pause")==0) projector->pauseSeq();
+                if(strcmp(argv[2],"stop")==0) projector->stopSeq();
 
-            } else if(strcmp (argv[1], "load")==0) {
-                if(strcmp (argv[2], "calibration")==0) {
-                    //todo: load calibration.xml
+            } else if(strcmp (argv[1], "run")==0) {
+                if(strcmp (argv[2], "pattern_test")==0) {
+                    unsigned int start = (unsigned int) std::stoi(argv[3]);
+                    unsigned int end = (unsigned int) std::stoi(argv[4]);
+                    unsigned int step = (unsigned int) std::stoi(argv[5]);
+                    projector->runPatternTest(start,end,step);
                 }
             } else if(strcmp (argv[1], "export")==0){
                 if(strcmp (argv[2], "calibration")==0) {

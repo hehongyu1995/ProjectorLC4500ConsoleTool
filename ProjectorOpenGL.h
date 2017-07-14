@@ -34,6 +34,7 @@ class ProjectorOpenGL : public Projector {
     int pauseSeq();
     int stopSeq();
     int getStatus();
+    int setPatternFPS(unsigned int fps);
     int runPatternTest(unsigned int start, unsigned end,unsigned step);
         ~ProjectorOpenGL();
     private:

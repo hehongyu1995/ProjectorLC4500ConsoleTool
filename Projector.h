@@ -47,6 +47,7 @@ public:
     virtual int getStatus()=0;
 
     virtual int runPatternTest(unsigned int start, unsigned end, unsigned step)=0;
+    virtual int setPatternFPS(unsigned int fps)=0;
 
     virtual ~Projector() {}
 };

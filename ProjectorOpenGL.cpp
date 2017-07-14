@@ -212,6 +212,7 @@ int ProjectorOpenGL::playSeq(){}
 int ProjectorOpenGL::pauseSeq(){}
 int ProjectorOpenGL::stopSeq(){}
 int ProjectorOpenGL::getStatus(){}
+int ProjectorOpenGL::setPatternFPS(unsigned int fps){}
 int ProjectorOpenGL::runPatternTest(unsigned int start, unsigned end,unsigned step){}
 
 ProjectorOpenGL::~ProjectorOpenGL(){

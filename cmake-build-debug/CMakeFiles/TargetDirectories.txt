@@ -1,0 +1,3 @@
+/home/hehongyu/Documents/ProjectorLC4500ConsoleTool/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/hehongyu/Documents/ProjectorLC4500ConsoleTool/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/hehongyu/Documents/ProjectorLC4500ConsoleTool/cmake-build-debug/CMakeFiles/Projector4500_Configurator.dir

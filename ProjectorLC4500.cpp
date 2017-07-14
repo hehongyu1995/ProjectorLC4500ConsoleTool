@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include "LC4500API/API.h"
 #include "LC4500API/usb.h"
+#include <math.h>
 
 void showError(std::string err){
     std::cerr << "Projector4500_Configurator:" << err.c_str() << std::endl;
@@ -37,23 +38,23 @@ ProjectorLC4500::ProjectorLC4500(unsigned int): nPatterns(0), isRunning(false){
         showError("Error Setting Power Mode");
     }
 
-    // Set LED selection
-    const bool SeqCtrl  = false; // manual (false) or automatic (true)
-    const bool LEDRed  = false;
-    const bool LEDGreen  = false;
-    const bool LEDBlue  = true;
-    LCR_SetLedEnables(SeqCtrl, LEDRed, LEDGreen,  LEDBlue);
-
-    // Set LED currents
-    const unsigned char RedCurrent = 0;
-    const unsigned char GreenCurrent = 0;
-    const unsigned char BlueCurrent = 100;
-    LCR_SetLedCurrents(100, 100, 100);
-
-    unsigned char Red;
-    unsigned char Green;
-    unsigned char Blue;
-    LCR_GetLedCurrents(&Red, &Green, &Blue);
+//    // Set LED selection
+//    const bool SeqCtrl  = false; // manual (false) or automatic (true)
+//    const bool LEDRed  = true;
+//    const bool LEDGreen  = true;
+//    const bool LEDBlue  = true;
+//    LCR_SetLedEnables(SeqCtrl, LEDRed, LEDGreen,  LEDBlue);
+//
+//    // Set LED currents
+//    const unsigned char RedCurrent = 0;
+//    const unsigned char GreenCurrent = 0;
+//    const unsigned char BlueCurrent = 100;
+//    LCR_SetLedCurrents(100, 100, 100);
+//
+//    unsigned char Red;
+//    unsigned char Green;
+//    unsigned char Blue;
+//    LCR_GetLedCurrents(&Red, &Green, &Blue);
 
 //    // Set to pattern sequence mode
 //    const bool patternSequenceMode = true;
@@ -145,7 +146,7 @@ void ProjectorLC4500::getScreenRes(unsigned int *nx, unsigned int *ny){
 ProjectorLC4500::~ProjectorLC4500(){
 
     // Stop pattern sequence
-    LCR_PatternDisplay(0);
+    //LCR_PatternDisplay(0);
 
     USB_Close();
     USB_Exit();
@@ -157,7 +158,19 @@ int ProjectorLC4500::setExplosureFramePeriod(unsigned int exposurePeriod, unsign
         showError("Error Sending Exposure period");
         return -1;
     }
+    if(LCR_SendPatLut() < 0)
+        showError("Error Sending Pattern LUT");
+    unsigned int status;
+    if(LCR_ValidatePatLutData(&status) < 0)
+        showError("Error validating LUT data");
+    std::cout<<"Wait for ValidatePatLutData..."<<std::endl;
+    usleep(500000);
 
+}
+int ProjectorLC4500::setPatternFPS(unsigned int fps) {
+    unsigned int  period=(unsigned int)floor(1000000/fps);
+    std::cout<<"Period: "<<period<<" MicroSec"<<std::endl;
+    setExplosureFramePeriod(period,period);
 }
 //true for internal trigger mode,false for external trigger mode.
 int ProjectorLC4500::setPatternTriggerMode(bool internal) {
@@ -183,6 +196,7 @@ int ProjectorLC4500::setSLMode() {
 }
 
 int ProjectorLC4500::playSeq() {
+    std::cout<<"play sequence"<<std::endl;
     if(LCR_PatternDisplay(2)<0){
         showError("Error play sequence.");
         return -1;
@@ -237,13 +251,20 @@ int ProjectorLC4500::getStatus() {
 
 int ProjectorLC4500::runPatternTest(unsigned int start, unsigned end,unsigned step) {
     std::cout<<"--- Start Sequence Test ---"<<std::endl;
-    for(unsigned int i=start;i<end;i+=step){
-        std::cout<<"Period: "<<i<<" Microseconds"<<std::endl;
-        setExplosureFramePeriod(i,i);
+
+    for(unsigned int i=start;i<=end;i+=step){
+        unsigned int  period=(unsigned int)floor(1000000/i);
+
+        std::cout<<"---"<<std::endl;
+        std::cout<<"FPS: "<<i<<std::endl;
+        std::cout<<"Period: "<<period<<" MicroSec"<<std::endl;
+
+        setExplosureFramePeriod(period,period);
         playSeq();
-        unsigned int sleepTime=1000000;
+
+        usleep(3000000);
+        std::cout<<"---"<<std::endl;
         stopSeq();
-        usleep(sleepTime);
     }
     return 0;
 }

@@ -30,6 +30,7 @@ class ProjectorLC4500 : public Projector {
         int pauseSeq();
         int stopSeq();
         int getStatus();
+        int setPatternFPS(unsigned int fps);
         int runPatternTest(unsigned int start, unsigned end,unsigned step);
 
         ~ProjectorLC4500();
